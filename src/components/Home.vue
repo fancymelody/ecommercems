@@ -13,7 +13,9 @@
             <!-- 侧边栏 -->
             <el-aside :width="isCollapse?'64px':'200px'">
                 <div class="toggle-button" @click="toggleCollapse">|||</div>
-                <el-menu background-color="#333744" text-color="#fff" active-text-color="#409EFF" :unique-opened="true" :collapse="isCollapse" :collapse-transition="false">
+                <el-menu background-color="#333744" text-color="#fff" active-text-color="#409EFF" 
+                :unique-opened="true" :collapse="isCollapse" :collapse-transition="false"
+                :default-active="activePath" router>
                     <!-- 一级菜单 -->
                     <el-submenu :index="firstItem.id+''" v-for="firstItem in menuList" :key="firstItem.id">
                         <!-- 一级菜单的模板区域 -->
@@ -24,8 +26,8 @@
                             <span>{{firstItem.authName}}</span>
                         </template>
                         <!-- 二级菜单 -->
-                        <el-menu-item :index="secondItem.id+''" v-for="secondItem in firstItem.children"
-                            :key="secondItem.id">
+                        <el-menu-item :index="'/'+secondItem.path" v-for="secondItem in firstItem.children"
+                            :key="secondItem.id" @click="saveNavState('/'+secondItem.path)">
                             <template slot="title">
                                 <!-- 图标 -->
                                 <i class="el-icon-menu"></i>
@@ -57,10 +59,12 @@
                     '145': 'iconfont icon-baobiao'
                 },
                 isCollapse:false,
+                activePath:''
             }
         },
         created() {
             this.getMenuList()
+            this.activePath=window.sessionStorage.getItem('activePath')
         },
         methods: {
             logout() {
@@ -75,11 +79,16 @@
                     this.menuList = res.data
                 }
                 //    console.log(res)
-                //    console.log(this.menuList)
+                // console.log(this.menuList)
             },
             // 菜单的折叠与展开
             toggleCollapse(){
                 this.isCollapse=!this.isCollapse
+            },
+            //保存链接的激活状态
+            saveNavState(activePath){
+                window.sessionStorage.setItem('activePath',activePath)
+                this.activePath=activePath
             }
         }
     }
