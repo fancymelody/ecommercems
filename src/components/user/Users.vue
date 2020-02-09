@@ -46,7 +46,8 @@
                         </el-button>
                         <!-- 分配角色按钮 -->
                         <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-                            <el-button type="warning" size="mini" icon="el-icon-setting"></el-button>
+                            <el-button type="warning" size="mini" icon="el-icon-setting" @click="setRole(scope.row)">
+                            </el-button>
                         </el-tooltip>
                     </template>
                 </el-table-column>
@@ -56,48 +57,65 @@
                 :current-page="queryInfo.pagenum" :page-sizes="[1, 2, 5, 10]" :page-size="queryInfo.pagesize"
                 layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
-            <!-- 添加用户对话框 -->
-            <el-dialog title="添加用户" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
-                <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
-                    <!-- prop为验证规则对应的字段名 -->
-                    <el-form-item label="用户名" prop="username">
-                        <el-input v-model="addForm.username"></el-input>
-                    </el-form-item>
-                    <el-form-item label="密码" prop="password">
-                        <el-input v-model="addForm.password"></el-input>
-                    </el-form-item>
-                    <el-form-item label="邮箱" prop="email">
-                        <el-input v-model="addForm.email"></el-input>
-                    </el-form-item>
-                    <el-form-item label="手机" prop="mobile">
-                        <el-input v-model="addForm.mobile"></el-input>
-                    </el-form-item>
-                </el-form>
-                <span slot="footer" class="dialog-footer">
-                    <el-button @click="addDialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="addUser">确 定</el-button>
-                </span>
-            </el-dialog>
-            <!-- 编辑用户对话框 -->
-            <el-dialog title="编辑用户" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-                <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
-                    <!-- prop为验证规则对应的字段名 -->
-                    <el-form-item label="用户名" prop="username">
-                        <el-input v-model="editForm.username" disabled></el-input>
-                    </el-form-item>
-                    <el-form-item label="邮箱" prop="email">
-                        <el-input v-model="editForm.email"></el-input>
-                    </el-form-item>
-                    <el-form-item label="手机" prop="mobile">
-                        <el-input v-model="editForm.mobile"></el-input>
-                    </el-form-item>
-                </el-form>
-                <span slot="footer" class="dialog-footer">
-                    <el-button @click="editDialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="editUser">确 定</el-button>
-                </span>
-            </el-dialog>
         </el-card>
+        <!-- 添加用户对话框 -->
+        <el-dialog title="添加用户" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
+            <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
+                <!-- prop为验证规则对应的字段名 -->
+                <el-form-item label="用户名" prop="username">
+                    <el-input v-model="addForm.username"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                    <el-input v-model="addForm.password"></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                    <el-input v-model="addForm.email"></el-input>
+                </el-form-item>
+                <el-form-item label="手机" prop="mobile">
+                    <el-input v-model="addForm.mobile"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="addDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="addUser">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 编辑用户对话框 -->
+        <el-dialog title="编辑用户" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
+            <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
+                <!-- prop为验证规则对应的字段名 -->
+                <el-form-item label="用户名" prop="username">
+                    <el-input v-model="editForm.username" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                    <el-input v-model="editForm.email"></el-input>
+                </el-form-item>
+                <el-form-item label="手机" prop="mobile">
+                    <el-input v-model="editForm.mobile"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="editUser">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 分配角色对话框 -->
+        <el-dialog title="分配角色" :visible.sync="setRoleDialogVisible" width="50%" @close="setRoleDialogClosed">
+            <div>
+                <p>当前的用户:{{userInfo.username}}</p>
+                <p>当前的角色:{{userInfo.role_name}}</p>
+                <p>分配新角色:
+                    <el-select v-model="selectedRoleId" placeholder="请选择">
+                        <el-option v-for="item in rolelist" :key="item.id" :label="item.roleName" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </p>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -151,6 +169,10 @@
                         { required: true, message: '请输入手机号', trigger: 'blur' }
                     ]
                 },
+                setRoleDialogVisible: false,
+                userInfo: '',
+                rolelist: [],
+                selectedRoleId:''
             }
         },
         created() {
@@ -276,6 +298,45 @@
                 } else {
                     this.$message.info('已取消删除')
                 }
+            },
+            // 分配角色对话框
+            setRole(userInfo) {
+                this.userInfo = userInfo
+                // 获取所有的角色列表
+                this.$http
+                    .get('roles')
+                    .then(res => {
+                        this.rolelist = res.data.data
+                        // console.log(this.rolelist)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        this.$message.error('获取角色列表失败')
+                    })
+                this.setRoleDialogVisible = true
+            },
+            // 点击按钮,分配角色
+            saveRoleInfo(){
+                if(!this.selectedRoleId){
+                    this.$message.error('请选择要分配的角色')
+                }
+                this.$http
+                .put('users/'+this.userInfo.id+'/role',{rid:this.selectedRoleId})
+                .then(res=>{
+                    console.log(res.data)
+                    this.$message.success('成功分配角色')
+                    this.getUserList()
+                    this.setRoleDialogVisible=false
+                })
+                .catch(err=>{
+                    console.log(err)
+                    this.$message.error('分配角色失败')
+                })
+            },
+            // 监听分配角色对话框关闭事件
+            setRoleDialogClosed(){
+                this.selectedRoleId=''
+                this.userInfo=''
             }
         }
     }
