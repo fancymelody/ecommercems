@@ -6,11 +6,20 @@ import 'element-ui/lib/theme-chalk/index.css';
 import axios from 'axios';
 import App from './App'
 import router from './router'
+// 导入vue-table-with-tree-grid带有树状结构的表格
 import ZkTable from 'vue-table-with-tree-grid'
 // 导入全局样式表
 import './assets/css/global.css'
 // 导入字体图标
 import './assets/fonts/iconfont.css'
+// 导入vue-quill-editor富文本编辑器
+import VueQuillEditor from 'vue-quill-editor'
+// require styles
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+Vue.use(VueQuillEditor)
 
 Vue.config.productionTip = false
 

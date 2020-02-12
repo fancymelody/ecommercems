@@ -60,14 +60,25 @@
                             <el-button size="small" type="primary">点击上传</el-button>
                         </el-upload>
                     </el-tab-pane>
-                    <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+                    <el-tab-pane label="商品内容" name="4">
+                        <quill-editor v-model="addForm.goods_introduce">
+                        </quill-editor>
+                        <el-button type="primary" class="btn-add" @click="add">添加商品</el-button>
+                    </el-tab-pane>
                 </el-tabs>
             </el-form>
         </el-card>
+        <!-- 对话框 -->
+        <el-dialog title="图片预览" :visible.sync="previewVisible" width="50%">
+            <img :src="previewUrl" class="preview-img">
+        </el-dialog>
     </div>
 </template>
 
 <script>
+    // 导入lodash
+    import _ from 'lodash'
+
     export default {
         data() {
             return {
@@ -78,7 +89,9 @@
                     goods_weight: 0,
                     goods_number: 0,
                     goods_cat: [],
-                    pics:[]
+                    pics: [],
+                    goods_introduce: '',
+                    attrs: []
                 },
                 addFormRules: {
                     goods_name: [
@@ -107,9 +120,11 @@
                 manyTableData: [],
                 onlyTableData: [],
                 uploadUrl: 'http://127.0.0.1:8888/api/private/v1/upload',
-                headerObj:{
-                    Authorization:window.sessionStorage.getItem('token')
-                }
+                headerObj: {
+                    Authorization: window.sessionStorage.getItem('token')
+                },
+                previewUrl: '',
+                previewVisible: false
             }
         },
         created() {
@@ -120,7 +135,7 @@
                 this.$http
                     .get('categories')
                     .then(res => {
-                        console.log('分类列表' + res.data)
+                        console.log(res.data)
                         this.catelist = res.data.data
                     })
                     .catch(err => {
@@ -184,16 +199,72 @@
                 }
             },
             // 处理图片预览
-            handlePreview() {
-
+            handlePreview(file) {
+                console.log(file)
+                this.previewVisible = true
+                this.previewUrl = file.response.data.url
             },
             // 处理移除图片
-            handleRemove() {
-
+            handleRemove(file) {
+                console.log(file)
+                const filePath = file.response.data.temp_path
+                const i = this.addForm.pics.findIndex(x =>
+                    x.pic === filePath
+                )
+                this.addForm.pics.splice(i, 1)
+                console.log(this.addForm)
             },
             // 监听图片上传成功的事件
-            handleSuccess(response){
-               console.log(response)
+            handleSuccess(response) {
+                console.log(response)
+                //  1、拼接得到一个图片信息对象
+                const picInfo = {
+                    pic: response.data.tmp_path
+                }
+                // 2、将图片信息对象,push到pics数组中
+                this.addForm.pics.push(picInfo)
+                console.log(this.addForm)
+            },
+            add() {
+                console.log(this.addForm)
+                this.$refs.addFormRef.validate(valid => {
+                    console.log(valid)
+                    if (!valid) {
+                        return this.$message.error('请填写必要的表单项')
+                    }
+                    // 执行添加的业务逻辑
+                    // lodash  cloneDeep(obj) 深拷贝和对象一样的对象
+                    const form = _.cloneDeep(this.addForm)
+                    form.goods_cat = form.goods_cat.join(',')
+                    // 处理动态参数
+                    this.manyTableData.forEach(item => {
+                        const newInfo = {
+                            attr_id: item.attr_id,
+                            attr_value:item.attr_vals.join(' ')
+                        }
+                        this.addForm.attrs.push(newInfo)
+                    })
+                    // 处理静态属性
+                    this.onlyTableData.forEach(item=>{
+                        const newInfo={
+                            attr_id: item.attr_id,
+                            attr_value:item.attr_vals
+                        }
+                        this.addForm.attrs.push(newInfo)
+                    })
+                    form.attrs=this.addForm.attrs
+                    console.log(form)
+                    this.$http
+                    .post('goods',form)
+                    .then(res=>{
+                        console.log(res.data)
+                        this.$message.success('添加商品成功')
+                        this.$router.push('/goods')
+                    })
+                    .catch(err=>{
+                        this.$message.error('添加商品失败')
+                    })
+                })
             }
         },
         computed: {
@@ -210,5 +281,14 @@
 <style scoped>
     .el-checkbox {
         margin: 0 10px 0 0 !important;
+    }
+
+    .preview-img {
+        width: 100%;
+    }
+
+    .btn-add {
+        margin-top: 15px;
+        margin-left: 370px;
     }
 </style>
