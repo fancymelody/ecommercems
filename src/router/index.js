@@ -11,68 +11,73 @@ import Params from '../components/goods/Params'
 import GoodsList from '../components/goods/List'
 import Add from '../components/goods/Add'
 import Order from '../components/order/order'
+import Report from '../components/report/Report'
 
 Vue.use(Router)
 
-const router= new Router({
+const router = new Router({
   routes: [
-    {path:'/',redirect:'/login'},
+    { path: '/', redirect: '/login' },
     {
       path: '/login', component: Login
     },
     {
-      path: '/home', component: Home,redirect:'/welcome',
-      children:[
+      path: '/home', component: Home, redirect: '/welcome',
+      children: [
         {
-          path:'/welcome',
-          component:Welcome
+          path: '/welcome',
+          component: Welcome
         },
         {
-          path:'/users',
-          component:Users
+          path: '/users',
+          component: Users
         },
         {
-          path:'/rights',
-          component:Rights
+          path: '/rights',
+          component: Rights
         },
         {
-          path:'/roles',
-          component:Roles
+          path: '/roles',
+          component: Roles
         },
         {
-          path:'/categories',
-          component:Category
+          path: '/categories',
+          component: Category
         },
         {
-          path:'/params',
-          component:Params
+          path: '/params',
+          component: Params
         },
         {
-          path:'/goods',
-          component:GoodsList
+          path: '/goods',
+          component: GoodsList
         },
         {
-          path:'/goods/add',
-          component:Add
+          path: '/goods/add',
+          component: Add
         },
         {
-          path:'/orders',
-          component:Order
+          path: '/orders',
+          component: Order
+        },
+        {
+          path: '/reports',
+          component: Report
         }
       ]
     },
   ]
 })
 // 挂载路由导航守卫
-router.beforeEach((to,from,next)=>{
+router.beforeEach((to, from, next) => {
   // to 将要访问的路径
   // from 代表从那个路径来
   // next 是一个函数,表示放行
   //   next() 放行 next('/login) 强制跳转
-  if(to.path==='/login') return next();
+  if (to.path === '/login') return next();
   //获取token
-  const tokenStr=window.sessionStorage.getItem('token')
-  if(!tokenStr) return next('/login')
+  const tokenStr = window.sessionStorage.getItem('token')
+  if (!tokenStr) return next('/login')
   next();
 })
 export default router
